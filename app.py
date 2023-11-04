@@ -37,9 +37,7 @@ def scrape_channels():
 iface = gr.Interface(fn=scrape_channels, 
                      inputs=gr.Button("Scrape Channels"),
                      outputs=gr.Dataframe(),
-                     live=True, 
-                     share=True,
-                     theme="compact")
+                     live=True, )
 
 # Launch the Gradio app
 iface.launch()
