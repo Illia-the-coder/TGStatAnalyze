@@ -34,7 +34,7 @@ def scrape_channels():
     return df
 
 # Create a Gradio interface with a button to trigger the scraping and a function output
-iface = gr.Interface(fn=scrape_channels
+iface = gr.Interface(fn=scrape_channels,
                      outputs=gr.Dataframe(),
                      live=True, )
 
