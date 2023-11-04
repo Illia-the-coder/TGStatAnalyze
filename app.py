@@ -103,10 +103,10 @@ with open('categories.json', 'r') as f:
   categoriesDict = json.loads(f.read())
   
   
+asyncio.set_event_loop(asyncio.new_event_loop())
 demo = gr.Interface(
-  get_channels_by_category,
-  inputs = [gr.Dropdown(choices=list(categoriesDict.keys()), label="Category")],
-  outputs = ["dataframe"]
+    fn=get_channels_by_category,
+    inputs=[gr.Dropdown(choices=list(categoriesDict.keys()), label="Category")],
+    outputs=["dataframe"]
 )
-
-demo.launch()
+demo.launch(share=True)
