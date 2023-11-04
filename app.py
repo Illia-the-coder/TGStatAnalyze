@@ -100,13 +100,13 @@ async def get_channels_by_category(category_name):
     return df
 
 with open('categories.json', 'r') as f:
-  categoriesDict = json.load(f)
+  categoriesDict = json.loads(f.read())
   
   
 demo = gr.Interface(
   get_channels_by_category,
-  input = gr.Dropdown(choices=list(categoriesDict.keys()), label="Category"),
-  output = "dataframe"
+  inputs = [gr.Dropdown(choices=list(categoriesDict.keys()), label="Category")],
+  outputs = ["dataframe"]
 )
 
 demo.launch()
