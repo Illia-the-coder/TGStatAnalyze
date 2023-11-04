@@ -33,13 +33,26 @@ def scrape_channels():
     df = pd.DataFrame(channels_data, columns=['Channel Name', 'Category Name', 'Subscribers', 'Channel Link'])
     return df
 
-# Create a Gradio interface with a button to trigger the scraping and a function output
+# Define a custom HTML component for the button
+button_html = """
+<div style="margin-top: 20px;">
+  <button onclick="handleButtonClick()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Scrape Channels</button>
+</div>
+<script>
+  function handleButtonClick() {
+    gr.interface.send({input_name: 'button'});
+  }
+</script>
+"""
+
+# Create a Gradio interface with a custom button and a function output
 iface = gr.Interface(fn=scrape_channels, 
-                     inputs=gr.inputs.Button("Scrape Channels"),
+                     inputs=gr.inputs.Textbox("button", placeholder=""),
                      outputs=gr.outputs.Dataframe(),
                      live=True, 
                      share=True,
-                     theme="compact")
+                     theme="compact",
+                     examples=[[""]])
 
-# Launch the Gradio app
-iface.launch()
+# Launch the Gradio app with the custom button HTML
+iface.launch(inline=True, custom_button=button_html)
