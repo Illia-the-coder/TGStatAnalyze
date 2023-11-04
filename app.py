@@ -1,22 +1,29 @@
-import pandas as pd
 import gradio as gr
-from requests_html import HTMLSession
+import requests_html
+import pandas as pd
+from tqdm import tqdm  # Import tqdm for progress bar
 
-# Define a function to perform the scraping and return the DataFrame
-def scrape_channels():
-    session = HTMLSession()
+# Define a function to scrape Telegram channels from the given website
+def scrape_telegram_channels(url="https://uk.tgstat.com/"):
+    """Scrape Telegram channels from the given website.
 
-    # Send a GET request to the website
-    response = session.get('https://uk.tgstat.com/')
+    Args:
+        url: The URL of the website to scrape.
 
-    # Find the specific HTML block containing channel links
+    Returns:
+        A DataFrame containing the scraped channel data.
+    """
+
+    session = requests_html.HTMLSession()
+
+    response = session.get(url)
+
     channel_block = response.html.find('body > div.wrapper > div > div.content.p-0.col > div.container-fluid.px-2.px-md-3 > div:nth-child(5) > div > div.card.border.m-0 > div')
     channel_links = list(channel_block[0].absolute_links)
 
-    # Initialize an empty list to store channel data
     channels_data = []
 
-    for channel_link in channel_links:
+    for channel_link in tqdm(channel_links, desc="Scraping Channels"):
         channel_response = session.get(channel_link)
         category_name = channel_response.html.find("h1", first=True).text
         channels_list = channel_response.html.find("#category-list-form > div.row.justify-content-center.lm-list-container > div")
@@ -29,14 +36,18 @@ def scrape_channels():
             if subscribers_count > 10000:
                 channels_data.append([channel_name, category_name, subscribers_count, link])
 
-    # Create a DataFrame from the extracted data
     df = pd.DataFrame(channels_data, columns=['Channel Name', 'Category Name', 'Subscribers', 'Channel Link'])
+
     return df
 
-# Create a Gradio interface with a button to trigger the scraping and a function output
-iface = gr.Interface(fn=scrape_channels,
-                     outputs=gr.Dataframe(),
-                     live=True, )
+# Create a Gradio interface
+interface = gr.Interface(fn=scrape_telegram_channels, inputs=None, outputs="dataframe", title="Telegram Channel Scraper")
 
-# Launch the Gradio app
-iface.launch()
+# Add a button to the interface
+button = gr.Button("Scrape Channels")
+
+# Connect the button to the function
+button.click(scrape_telegram_channels)
+
+# Launch the interface
+interface.launch()
