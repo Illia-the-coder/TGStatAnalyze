@@ -41,7 +41,7 @@ def scrape_telegram_channels(url="https://uk.tgstat.com/"):
     return df
 
 # Create a Gradio interface
-with gradio.Blocks() as interface:
+with gr.Blocks() as interface:
     button = gr.Button("Scrape Channels")
 
     button.click(scrape_telegram_channels)
