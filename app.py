@@ -95,8 +95,7 @@ async def get_channels_by_category(category_name):
 
           channels_data.append(values)
     df = pd.DataFrame(channels_data)
-    # print(df)
-    # df.to_csv(f'{category_name}.csv', index=False)
+
     return df
 
 with open('categories.json', 'r') as f:
@@ -105,7 +104,7 @@ with open('categories.json', 'r') as f:
   
 asyncio.set_event_loop(asyncio.new_event_loop())
 demo = gr.Interface(
-    fn=get_channels_by_category,
+    fn=(lambda x: asyncio.get_event_loop().run_until_complete(get_channels_by_category(x))),
     inputs=[gr.Dropdown(choices=list(categoriesDict.keys()), label="Category")],
     outputs=["dataframe"]
 )
