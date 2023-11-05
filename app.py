@@ -139,9 +139,8 @@ with st.status("Checking requirements..."):
             f.write(json.dumps(categoriesDict))
 
 def fetch_data(selected_category):
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    result_df = loop.run_until_complete(get_channels_by_category(selected_category))
+    with st.status("Running Parse..."):
+        result_df = asyncio.get_event_loop().run_until_complete(get_channels_by_categoryselected_category))
     st.dataframe(result_df)
 
 if __name__ == "__main__":
