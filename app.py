@@ -7,23 +7,10 @@ import streamlit as st
 import threading
 
 def safe_eval(expression):
-    operators = {
-        '+': '__add__',
-        '-': '__sub__',
-        '*': '__mul__',
-        '/': '__truediv__',
-        '%': '__mod__'
-    }
+
 
     try:
-        for operator, method in operators.items():
-            if operator in expression:
-                parts = expression.split(operator)
-                left_operand = float(parts[0]) if '.' in parts[0] else int(parts[0])
-                right_operand = float(parts[1]) if '.' in parts[1] else int(parts[1])
-                return str(getattr(left_operand, method)(right_operand))
-
-        return expression
+       return round(eval(expression),2)
     except Exception as e:
         print(f"Error evaluating expression '{expression}': {e}")
         return None
@@ -81,7 +68,7 @@ async def get_channels_by_category(category_name):
                 for i in range(1, len(metric)):
                     if metric[i] in keys:
                         key = metric[i].capitalize()
-                        value = round(eval(metric[i - 1].replace(' ', '').replace('%', '/100').replace('k', '*1000')),2) if metric[i] != 'канал создан' else metric[i - 1]
+                        value = safe_eval(metric[i - 1].replace(' ', '').replace('%', '/100').replace('k', '*1000')),2) if metric[i] != 'канал создан' else metric[i - 1]
                         transformations[f'{mainKey} ({key})'] = value
 
             keys_and_transformations = {
