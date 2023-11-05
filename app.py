@@ -14,10 +14,6 @@ if __name__ == "__main__":
     selected_category = st.selectbox("Select Category", list(categoriesDict.keys()))
 
     if st.button('Run'):
-      with st.status("Parsing..."):
-        df = fetch_data(selected_category)
+      df = fetch_data(selected_category)
       st.success("Done!")
       st.dataframe(df)     
-    # Run the asynchronous code in a separate thread
-    # thread = threading.Thread(target=fetch_data, args=(selected_category,))
-    # thread.start()
