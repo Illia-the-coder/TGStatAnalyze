@@ -18,11 +18,16 @@ def safe_eval(expression):
     try:
         for operator, method in operators.items():
             if operator in expression:
-                return str(getattr(expression.split(operator)[0], method)(float(expression.split(operator)[1])))
+                parts = expression.split(operator)
+                left_operand = float(parts[0]) if '.' in parts[0] else int(parts[0])
+                right_operand = float(parts[1]) if '.' in parts[1] else int(parts[1])
+                return str(getattr(left_operand, method)(right_operand))
+
         return expression
     except Exception as e:
         print(f"Error evaluating expression '{expression}': {e}")
         return None
+
 
 async def get_dict_topic():
     asession = AsyncHTMLSession()
@@ -52,6 +57,7 @@ async def get_channels_by_category(category_name):
     channels_data = []
     for channel in channels_list:
         channel_name = channel.find('div.font-16.text-dark.text-truncate', first=True).text
+        st.write(f"Scanning {channel_name}...")
         Tgstat_link = str(list(channel.absolute_links)[0]) +'/stat'
 
         async def get_values_by_channel(stats_link):
@@ -132,15 +138,17 @@ async def get_channels_by_category(category_name):
     # Save the DataFrame to CSV file
     df.to_csv(f'{category_name}.csv', index=False)
     return df
-
-if not os.path.exists('categories.json'):
-    categoriesDict = asyncio.get_event_loop().run_until_complete(get_dict_topic())
-    with open('categories.json', 'w') as f:
-        f.write(json.dumps(categoriesDict))
+with st.status("Checking requirements..."):
+    if not os.path.exists('categories.json'):
+        
+        categoriesDict = asyncio.get_event_loop().run_until_complete(get_dict_topic())
+        with open('categories.json', 'w') as f:
+            f.write(json.dumps(categoriesDict))
 
 def fetch_data(selected_category):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
+    with st.status("Running Parsing..."):
     result_df = loop.run_until_complete(get_channels_by_category(selected_category))
     st.dataframe(result_df)
 
@@ -149,7 +157,7 @@ if __name__ == "__main__":
         categoriesDict = json.loads(f.read())
 
     selected_category = st.selectbox("Select Category", list(categoriesDict.keys()))
-
+    
     # Run the asynchronous code in a separate thread
     thread = threading.Thread(target=fetch_data, args=(selected_category,))
     thread.start()
