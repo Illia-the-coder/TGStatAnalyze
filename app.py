@@ -68,7 +68,7 @@ async def get_channels_by_category(category_name):
                 for i in range(1, len(metric)):
                     if metric[i] in keys:
                         key = metric[i].capitalize()
-                        value = safe_eval(metric[i - 1].replace(' ', '').replace('%', '/100').replace('k', '*1000'))) if metric[i] != 'канал создан' else metric[i - 1]
+                        value = safe_eval(metric[i - 1].replace(' ', '').replace('%', '/100').replace('k', '*1000')) if metric[i] != 'канал создан' else metric[i - 1]
                         transformations[f'{mainKey} ({key})'] = value
 
             keys_and_transformations = {
