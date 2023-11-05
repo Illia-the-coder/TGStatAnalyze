@@ -6,6 +6,24 @@ from requests_html import AsyncHTMLSession
 import streamlit as st
 import threading
 
+def safe_eval(expression):
+    operators = {
+        '+': '__add__',
+        '-': '__sub__',
+        '*': '__mul__',
+        '/': '__truediv__',
+        '%': '__mod__'
+    }
+
+    try:
+        for operator, method in operators.items():
+            if operator in expression:
+                return str(getattr(expression.split(operator)[0], method)(float(expression.split(operator)[1])))
+        return expression
+    except Exception as e:
+        print(f"Error evaluating expression '{expression}': {e}")
+        return None
+
 async def get_dict_topic():
     asession = AsyncHTMLSession()
     response = await asession.get('https://uk.tgstat.com/')
@@ -71,8 +89,10 @@ async def get_channels_by_category(category_name):
 
             for key in dict_.keys():
                 if key in required_columns and key != 'Возраст канала':
-                    dict_[key]=eval(dict_[key][0].replace(' ', '').replace('всего',' ').replace('%','/100').replace('k','*1000'))
-
+                    transformed_value = safe_eval(dict_[key][0].replace(' ', '').replace('всего',' ').replace('%','/100').replace('k','*1000'))
+                    if transformed_value is not None:
+                        dict_[key] = transformed_value
+                        
             del dict_['Возраст канала']
             dict_['TG Link'] = list(r.find('body > div.wrapper > div > div.content.p-0.col > div.container-fluid.px-2.px-md-3 > div:nth-child(2) > div > div > div > div.col-12.col-sm-7.col-md-8.col-lg-6 > div.text-center.text-sm-left > a')[0].absolute_links)[0]
             return dict_
