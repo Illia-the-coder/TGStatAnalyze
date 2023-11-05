@@ -6,7 +6,7 @@ categoriesDict = {'Цитаты': 'https://uk.tgstat.com/quotes', 'Юмор и �
 def fetch_data(selected_category):
   loop = asyncio.new_event_loop()
   asyncio.set_event_loop(loop)
-  result_df = loop.run_until_complete(get_channels_by_category(selected_category))
+  result_df = loop.run_until_complete(get_channels_by_category(selected_category,categoriesDict))
   return result_df
 
 if __name__ == "__main__":
