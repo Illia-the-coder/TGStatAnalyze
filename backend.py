@@ -10,11 +10,9 @@ import streamlit as st
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36'}
 
 
-async def get_channels_by_category(category_name):
+async def get_channels_by_category(category_name,categoriesDict):
     asession = AsyncHTMLSession()
 
-    with open('categories.json', 'r') as f:
-        categoriesDict = eval(f.read())
     category_link = categoriesDict[category_name]
 
     logging.info(f'Fetching data from {category_link}')
