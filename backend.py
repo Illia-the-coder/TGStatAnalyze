@@ -1,10 +1,10 @@
 import os
 import asyncio
 from requests_html import AsyncHTMLSession
-from tqdm import tqdm
 import logging
 import pandas as pd
 import json
+import streamlit as st
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36'}
 
@@ -42,7 +42,10 @@ async def get_channels_by_category(category_name):
     response = await asession.get(category_link, headers=headers)
     channels_list = response.html.find("#category-list-form > div.row.justify-content-center.lm-list-container > div")
     channels_data = []
-    for channel in tqdm(channels_list, desc=f'Fetching Channels for {category_name}', ncols=100):
+    progress_text = "Parsing..."
+    my_bar = st.progress(0, text=progress_text)
+  
+    for index,channel in enumerate(channels_list):
         channel_name = channel.find('div.font-16.text-dark.text-truncate', first=True).text
         Tgstat_link = str(list(channel.absolute_links)[0]) +'/stat'
 
@@ -104,6 +107,9 @@ async def get_channels_by_category(category_name):
           values['Tgstat_link'] = Tgstat_link
 
           channels_data.append(values)
+          
+        my_bar.progress((index + 1)/len(channels_list), text=progress_text)
+    
     df = pd.DataFrame(channels_data)
     df = df.rename(columns={'Возраст канала (Канал создан)': 'Канал создан'})
     # df['Канал создан'] = pd.to_datetime(df['Канал создан'], format='%d.%m.%Y', errors='coerce')
