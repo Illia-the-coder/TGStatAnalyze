@@ -67,7 +67,9 @@ async def get_channels_by_category(category_name):
             required_columns = ['Подписчики', 'Индекс цитирования','Средний охват 1 публикации','Средний рекламный охват 1 публикации','Возраст канала']
             for key in dict_.keys():
               if key not in required_columns:
-                dict_[key]=eval(dict_[key][0].replace(' ', '').replace('всего',' ').replace('%','/100').replace('k','*1000'))
+                transformed_value = safe_eval(dict_[key][0].replace(' ', '').replace('всего',' ').replace('%','/100').replace('k','*1000'))
+                    if transformed_value is not None:
+                        dict_[key] = transformed_value
 
             def process_metric(metric, keys, transformations, mainKey):
                 for i in range(1, len(metric)):
