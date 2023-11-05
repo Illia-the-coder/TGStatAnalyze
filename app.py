@@ -7,19 +7,19 @@ import logging
 import pandas as pd
 import json
 import threading
+from fake_headers import Headers
 
-headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36'}
 
 async def get_dict_topic():
     asession = AsyncHTMLSession()
-    response = await asession.get('https://uk.tgstat.com/')
+    response = await asession.get('https://uk.tgstat.com/', headers = Headers(headers=True).generate())
     category_block = response.html.find('body > div.wrapper > div > div.content.p-0.col > div.container-fluid.px-2.px-md-3 > div:nth-child(5) > div > div.card.border.m-0 > div')
     category_links = list(category_block[0].absolute_links)
     category_names = []
 
     for category_link in category_links:
         try:
-            response = await asession.get(category_link)
+            response = await asession.get(category_link, headers = Headers(headers=True).generate())
             name = response.html.find("h1", first=True).text
             category_names.append(name)
         except Exception as e:
@@ -35,8 +35,8 @@ async def get_channels_by_category(category_name):
     category_link = categoriesDict[category_name]
 
     logging.info(f'Fetching data from {category_link}')
-
-    response = await asession.get(category_link, headers=headers)
+    
+    response = await asession.get(category_link, headers=Headers(headers=True).generate())
     channels_list = response.html.find("#category-list-form > div.row.justify-content-center.lm-list-container > div")
     channels_data = []
     for channel in tqdm(channels_list, desc=f'Fetching Channels for {category_name}', ncols=100):
@@ -44,7 +44,7 @@ async def get_channels_by_category(category_name):
         Tgstat_link = str(list(channel.absolute_links)[0]) +'/stat'
 
         async def get_values_by_channel(stats_link):
-            r = await asession.get(stats_link, headers=headers)
+            r = await asession.get(stats_link, headers=Headers(headers=True).generate())
             r = r.html
             subscribers_count = int(r.find("#sticky-center-column > div > div > div:nth-child(1) > div > h2", first=True).text.replace(' ', ''))
 
