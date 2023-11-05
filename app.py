@@ -102,7 +102,7 @@ async def get_channels_by_category(category_name):
           values['Tgstat_link'] = Tgstat_link
 
         channels_data.append(values)
-        my_bar.progress(index + 1, text=channel_name)
+        my_bar.progress((index + 1)/len(channels_list), text=channel_name)
     my_bar.empty()
     df = pd.DataFrame(channels_data)
     df = df.rename(columns={'Возраст канала (Канал создан)': 'Канал создан'})
