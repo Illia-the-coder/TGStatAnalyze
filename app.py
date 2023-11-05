@@ -3,6 +3,7 @@ import asyncio
 import pandas as pd
 import json
 from requests_html import AsyncHTMLSession
+import streamlit as st
 
 asession = AsyncHTMLSession()
 
@@ -89,11 +90,18 @@ async def get_channels_by_category(category_name):
     df = pd.DataFrame(channels_data)
     return df
 
-import streamlit as st
+def fetch_data(selected_category):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    result_df = loop.run_until_complete(get_channels_by_category(selected_category))
+    st.dataframe(result_df)
 
-with open('categories.json', 'r') as f:
-    categoriesDict = json.loads(f.read())
+if __name__ == "__main__":
+    with open('categories.json', 'r') as f:
+        categoriesDict = json.loads(f.read())
 
-selected_category = st.selectbox("Select Category", list(categoriesDict.keys()))
-result_df = asyncio.get_event_loop().run_until_complete(get_channels_by_category(selected_category))
-st.dataframe(result_df)
+    selected_category = st.selectbox("Select Category", list(categoriesDict.keys()))
+
+    # Run the asynchronous code in a separate thread
+    thread = threading.Thread(target=fetch_data, args=(selected_category,))
+    thread.start()
