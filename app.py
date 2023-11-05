@@ -6,6 +6,7 @@ from requests_html import AsyncHTMLSession
 import streamlit as st
 import threading
 
+headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36'}
 
 async def get_dict_topic():
     asession = AsyncHTMLSession()
