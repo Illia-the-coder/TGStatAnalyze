@@ -101,7 +101,10 @@ async def get_channels_by_category(category_name):
             channels_data.append(values)
     df = pd.DataFrame(channels_data)
     df = df.rename(columns={'Возраст канала (Канал создан)': 'Канал создан'})
-    df['Канал создан'] = pd.to_datetime(df['Канал создан'], format='%d.%m.%Y', errors='coerce')
+    try:
+        df['Канал создан'] = pd.to_datetime(df['Канал создан'], format='%d.%m.%Y', errors='coerce')
+    except:
+        pass
     desired_column_order = [
         'Name', 'TG Link', 'Tgstat_link','Канал создан',
         'Подписчики', 'Индекс цитирования', 'Средний охват 1 публикации',
