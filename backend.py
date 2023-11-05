@@ -1,6 +1,7 @@
 import os
 import asyncio
 from requests_html import AsyncHTMLSession
+from tqdm import tqdm
 import logging
 import pandas as pd
 import json
@@ -8,27 +9,6 @@ import streamlit as st
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36'}
 
-async def get_dict_topic():
-    asession = AsyncHTMLSession()
-    response = await asession.get('https://uk.tgstat.com/', headers=headers)
-    category_block = response.html.find('body > div.wrapper > div > div.content.p-0.col > div.container-fluid.px-2.px-md-3 > div:nth-child(5) > div > div.card.border.m-0 > div')
-    category_links = list(category_block[0].absolute_links)
-    category_names = []
-
-    for category_link in tqdm(category_links, desc='Fetching Categories', ncols=100):
-        try:
-            response = await asession.get(category_link, headers=headers)
-            name = response.html.find("h1", first=True).text
-            category_names.append(name)
-        except Exception as e:
-            print(f"Error fetching data from {category_link}: {e}")
-
-    return dict(zip( category_names,category_links))
-
-if not os.path.exists('categories.json'):
-    categoriesDict = asyncio.get_event_loop().run_until_complete(get_dict_topic())
-    with open('categories.json', 'w') as f:
-        f.write(json.dumps(categoriesDict))
 
 async def get_channels_by_category(category_name):
     asession = AsyncHTMLSession()
