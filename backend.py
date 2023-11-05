@@ -10,7 +10,7 @@ import streamlit as st
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36'}
 
 
-async def get_channels_by_category(category_name,categoriesDict):
+async def get_channels_by_category(category_name,categoriesDict, sub_min):
     asession = AsyncHTMLSession()
 
     category_link = categoriesDict[category_name]
@@ -22,7 +22,7 @@ async def get_channels_by_category(category_name,categoriesDict):
     channels_data = []
     progress_text = "Parsing..."
     my_bar = st.progress(0, text=progress_text)
-  
+
     for index,channel in enumerate(channels_list):
         channel_name = channel.find('div.font-16.text-dark.text-truncate', first=True).text
         Tgstat_link = str(list(channel.absolute_links)[0]) +'/stat'
@@ -79,42 +79,54 @@ async def get_channels_by_category(category_name,categoriesDict):
 
 
         subscribers_count = int(channel.find('div.font-12.text-truncate', first=True).text.replace(' подписчиков', '').replace(' ', ''))
-        if subscribers_count > 10000:
+        if subscribers_count > sub_min:
           values = await get_values_by_channel(Tgstat_link)
           values['Name'] = channel_name
           values['Tgstat_link'] = Tgstat_link
 
           channels_data.append(values)
-          
+
         my_bar.progress((index + 1)/len(channels_list), text=progress_text)
-    
+
     df = pd.DataFrame(channels_data)
-    df = df.rename(columns={'Возраст канала (Канал создан)': 'Канал создан'})
-    # df['Канал создан'] = pd.to_datetime(df['Канал создан'], format='%d.%m.%Y', errors='coerce')
-    desired_column_order = [
-      'Name', 'TG Link', 'Tgstat_link','Канал создан',
-      'Подписчики', 'Индекс цитирования', 'Средний охват 1 публикации',
-      'Средний рекламный охват 1 публикации', 'Публикации',
-      'Вовлеченность подписчиков (err)', 'Вовлеченность подписчиков (er)',
-      'Подписчики (Сегодня)', 'Подписчики (За неделю)',
-      'Подписчики (За месяц)', 'Индекс цитирования (Уп. каналов)',
-      'Индекс цитирования (Упоминаний)', 'Индекс цитирования (Репостов)',
+    df = df.rename(columns={'Возраст канала (Канал создан)': 'Возраст канала'})
+    df['Категорія'] = category_name
+
+    desired_column_order =  [
+      'Name',
+      'Категорія',
+      'Подписчики',
+      'Подписчики (Сегодня)',
+      'Подписчики (За неделю)',
+      'Подписчики (За месяц)',
+      'Индекс цитирования',
+      'Возраст канала',
+      'Средний рекламный охват 1 публикации (За 24 часа)',
+      'TG Link',
+      'Tgstat_link',
+      'Индекс цитирования (Уп. каналов)',
+      'Индекс цитирования (Упоминаний)',
+      'Индекс цитирования (Репостов)',
+      'Средний охват 1 публикации',
       'Средний охват 1 публикации (Err)',
       'Средний охват 1 публикации (Err24)',
+      'Средний рекламный охват 1 публикации',
       'Средний рекламный охват 1 публикации (За 12 часов)',
-      'Средний рекламный охват 1 публикации (За 24 часа)',
       'Средний рекламный охват 1 публикации (За 48 часов)',
-       'Подписки/отписки за 24 часа',
-      'Пол подписчиков', 'Stories'
-    ]
+      'Публикации',
+      'Вовлеченность подписчиков (err)',
+      'Вовлеченность подписчиков (er)',
+      'Подписки/отписки за 24 часа',
+      'Пол подписчиков',
+      'Stories'
+  ]
+
     desired_column_order = [x for x in desired_column_order if x in df.columns]
 
     # Reorder the columns in the DataFrame
     df = df[desired_column_order]
 
     # Save the DataFrame to CSV file
-    df.to_csv(f'{category_name}.csv', index=False)
+    # df.to_csv(f'{category_name}.csv', index=False)
     return df
-
-
 
