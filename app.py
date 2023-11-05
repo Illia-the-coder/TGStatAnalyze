@@ -131,26 +131,30 @@ async def get_channels_by_category(category_name):
     df.to_csv(f'{category_name}.csv', index=False)
     return df
     
-with st.status("Checking requirements..."):
-    if not os.path.exists('categories.json'):
-        
-        categoriesDict = asyncio.get_event_loop().run_until_complete(get_dict_topic())
-        with open('categories.json', 'w') as f:
-            f.write(json.dumps(categoriesDict))
+
 
 def fetch_data(selected_category):
-    with st.status("Running Parse..."):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        result_df = loop.run_until_complete(get_channels_by_category(selected_category))
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    result_df = loop.run_until_complete(get_channels_by_category(selected_category))
     st.dataframe(result_df)
 
 if __name__ == "__main__":
+    with st.status("Checking requirements..."):
+        if not os.path.exists('categories.json'):
+            
+            categoriesDict = asyncio.get_event_loop().run_until_complete(get_dict_topic())
+            with open('categories.json', 'w') as f:
+                f.write(json.dumps(categoriesDict))
     with open('categories.json', 'r') as f:
         categoriesDict = json.loads(f.read())
-
+        
     selected_category = st.selectbox("Select Category", list(categoriesDict.keys()))
     
+    if st.button('Run'):
+        with st.status("Parsing..."):
+            fetch_data(selected_category)
+    
     # Run the asynchronous code in a separate thread
-    thread = threading.Thread(target=fetch_data, args=(selected_category,))
-    thread.start()
+    # thread = threading.Thread(target=fetch_data, args=(selected_category,))
+    # thread.start()
