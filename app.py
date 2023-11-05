@@ -29,7 +29,6 @@ async def get_channels_by_category(category_name):
         categoriesDict = eval(f.read())
     category_link = categoriesDict[category_name]
 
-    logging.info(f'Fetching data from {category_link}')
 
     response = await asession.get(category_link)
     channels_list = response.html.find("#category-list-form > div.row.justify-content-center.lm-list-container > div")
