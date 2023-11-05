@@ -1,10 +1,11 @@
+import streamlit as st
 import os
 import asyncio
+from requests_html import AsyncHTMLSession
+from tqdm import tqdm
+import logging
 import pandas as pd
 import json
-from requests_html import AsyncHTMLSession
-import streamlit as st
-import threading
 
 headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36'}
 
