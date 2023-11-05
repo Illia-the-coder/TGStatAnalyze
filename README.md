@@ -3,7 +3,7 @@ title: TGStat
 emoji: 📊
 colorFrom: purple
 colorTo: yellow
-sdk: gradio
+sdk: streamlit
 sdk_version: 4.1.1
 app_file: app.py
 pinned: false
