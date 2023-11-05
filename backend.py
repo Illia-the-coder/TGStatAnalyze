@@ -1,13 +1,11 @@
 import os
 import asyncio
 from requests_html import AsyncHTMLSession
-from tqdm import tqdm
 import logging
 import pandas as pd
-import json
 import streamlit as st
 
-headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36'}
+
 
 
 async def get_channels_by_category(category_name,categoriesDict, sub_min):
@@ -17,7 +15,7 @@ async def get_channels_by_category(category_name,categoriesDict, sub_min):
 
     logging.info(f'Fetching data from {category_link}')
 
-    response = await asession.get(category_link, headers=headers)
+    response = await asession.get(category_link)
     channels_list = response.html.find("#category-list-form > div.row.justify-content-center.lm-list-container > div")
     channels_data = []
     progress_text = "Parsing..."
@@ -28,7 +26,7 @@ async def get_channels_by_category(category_name,categoriesDict, sub_min):
         Tgstat_link = str(list(channel.absolute_links)[0]) +'/stat'
 
         async def get_values_by_channel(stats_link):
-            r = await asession.get(stats_link, headers=headers)
+            r = await asession.get(stats_link)
             r = r.html
             subscribers_count = int(r.find("#sticky-center-column > div > div > div:nth-child(1) > div > h2", first=True).text.replace(' ', ''))
 
