@@ -5,6 +5,7 @@ import json
 from requests_html import AsyncHTMLSession
 import streamlit as st
 import threading
+import tqdm
 
 async def get_dict_topic():
     asession = AsyncHTMLSession()
