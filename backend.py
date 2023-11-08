@@ -127,4 +127,3 @@ async def get_channels_by_category(category_name,categoriesDict, sub_min):
     # Save the DataFrame to CSV file
     # df.to_csv(f'{category_name}.csv', index=False)
     return df
-
