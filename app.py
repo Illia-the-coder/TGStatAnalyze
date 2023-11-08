@@ -21,25 +21,27 @@ if __name__ == "__main__":
     citation_index = st.number_input('Индекс цитирования', min_value=0)
     ad_coverage = st.number_input('Средний рекламный охват 1 публикации (За 24 часа)', min_value=0)
   
-    channel_age = st.number_input('Возраст канала', value = 1)
+    channel_age = st.number_input('MAX Возраст канала', value = 1)
   
     if st.button('Run'):
       df = fetch_data(selected_category,min_sub)
+      
+      # st.dataframe(df)     
 
       pos_fol = [include_followers_today,include_followers_week,include_followers_month]
-      pos_fol = [(1 if x else 0) for x in pos_fol]
+      pos_fol = [(1 if x else -1) for x in pos_fol]
       
       df['Возраст канала'] = pd.to_datetime(df['Возраст канала'], format='%d.%m.%Y', errors='coerce')
       current_date = pd.to_datetime('now')
-      df['Возраст канала'] = (current_date - df['Возраст канала']).astype('<m8[Y]')
-
-      df = df[df['Подписчики (Сегодня)'].apply(lambda x: x/abs(x)) == pos_fol[0]]
-      df = df[df['Подписчики (За неделю)'].apply(lambda x: x/abs(x)) == pos_fol[1]]
-      df = df[df['Подписчики (За месяц)'].apply(lambda x: x/abs(x)) == pos_fol[2]]
+      df['Возраст канала'] = (current_date - df['Возраст канала']).dt.days
+      
+      df = df[df['Подписчики (Сегодня)'].apply(lambda x: (x/abs(x) if x!=0 else -1)) == pos_fol[0]]
+      df = df[df['Подписчики (За неделю)'].apply(lambda x: (x/abs(x) if x!=0 else -1)) == pos_fol[1]]
+      df = df[df['Подписчики (За месяц)'].apply(lambda x: (x/abs(x) if x!=0 else -1)) == pos_fol[2]]
       
       df = df[df['Индекс цитирования']>=citation_index]
       df = df[df['Средний рекламный охват 1 публикации (За 24 часа)']>=citation_index]
-
+      df = df[df['Возраст канала']<=channel_age*365]
       
       st.success("Done!")
       st.dataframe(df)     
